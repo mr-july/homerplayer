@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
     @SuppressWarnings("FieldCanBeLocal")
     private MainUiComponent mainUiComponent;
 
-    private BatteryStatusIndicator batteryStatusIndicator;
+    // private BatteryStatusIndicator batteryStatusIndicator;
     private @Nullable SimpleDeferred<Speaker> ttsDeferred;
     private OrientationActivityDelegate orientationDelegate;
 
@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
         controller.onActivityCreated();
 
-        batteryStatusIndicator = new BatteryStatusIndicator(
-                (ImageView) findViewById(R.id.batteryStatusIndicator), EventBus.getDefault());
+        // batteryStatusIndicator = new BatteryStatusIndicator(
+        //         (ImageView) findViewById(R.id.batteryStatusIndicator), EventBus.getDefault());
 
         orientationDelegate = new OrientationActivityDelegate(this, globalSettings);
 
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             // Start animations.
-            batteryStatusIndicator.startAnimations();
+            // batteryStatusIndicator.startAnimations();
 
             kioskModeHandler.onFocusGained();
         }
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements SpeakerProvider {
 
     @Override
     protected void onDestroy() {
-        batteryStatusIndicator.shutdown();
+        // batteryStatusIndicator.shutdown();
         controller.onActivityDestroy();
         super.onDestroy();
     }

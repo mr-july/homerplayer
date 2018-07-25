@@ -28,13 +28,13 @@ def getVersionName = { ->
 android {
     useLibrary 'org.apache.http.legacy'
 
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.1'
 
     defaultConfig {
         applicationId "com.studio4plus.homerplayer"
         minSdkVersion 17
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 46
         versionName getVersionName()
     }
