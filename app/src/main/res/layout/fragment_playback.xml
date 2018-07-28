@@ -10,30 +10,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#008856"
-        android:paddingBottom="@dimen/bookListItemPaddingVertical"
         android:paddingLeft="@dimen/bookListItemPaddingHoriz"
         android:paddingRight="@dimen/bookListItemPaddingHoriz">
 
-        <TextView
-            android:id="@+id/elapsedTime"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/buttons"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="30sp"
-            tools:text="00:13:10" />
+            <TextView
+                android:id="@+id/elapsedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/estimatedTime"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:textColor="#ffffff"
+                android:textSize="30sp"
+                tools:text="01:03:18" />
+            <TextView
+                android:id="@+id/estimatedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ffffff"
+                android:textSize="30sp"
+                tools:text="06:04:17" />
+
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="30dp"
-            tools:layout_editor_absoluteY="327dp">
+            android:layout_below="@id/estimatedTime"
+            android:orientation="horizontal">
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/stopButton"
@@ -58,7 +64,7 @@
                 android:layout_height="0dp"
                 android:layout_marginBottom="0dp"
                 android:layout_marginTop="0dp"
-                android:layout_marginRight="@dimen/buttonDistanceHoriz"
+                android:layout_marginEnd="@dimen/buttonDistanceHoriz"
                 android:contentDescription="@string/button_acc_fastforward"
                 android:src="@drawable/ff"
                 app:layout_constraintBottom_toBottomOf="@+id/stopButton"
@@ -74,7 +80,7 @@
                 android:layout_height="0dp"
                 android:layout_marginBottom="0dp"
                 android:layout_marginTop="0dp"
-                android:layout_marginLeft="@dimen/buttonDistanceHoriz"
+                android:layout_marginStart="@dimen/buttonDistanceHoriz"
                 android:contentDescription="@string/button_acc_rewind"
                 android:src="@drawable/rewind"
                 app:layout_constraintBottom_toBottomOf="@+id/stopButton"
@@ -94,14 +100,25 @@
         android:background="@color/ffRewindFillBackground"
         android:visibility="gone">
 
-        <!-- The text view is positioned to match the elapsedTime position -->
         <TextView
             android:id="@+id/elapsedTimeRewindFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/estimatedTimeRewindFF"
+            android:layout_centerHorizontal="true"
             android:textColor="#ffffff"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:textSize="@dimen/bookElapsedTimeTextSize"
-            android:gravity="center"/>
+            tools:text="01:03:18" />
+
+        <TextView
+            android:id="@+id/estimatedTimeRewindFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/bookElapsedTimeTextSize"
+            tools:text="06:04:17" />
     </RelativeLayout>
 
     <ViewStub

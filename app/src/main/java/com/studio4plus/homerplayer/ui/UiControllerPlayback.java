@@ -107,11 +107,15 @@ public class UiControllerPlayback {
                 mainHandler,
                 ui,
                 playbackService.getCurrentTotalPositionMs(),
-                playbackService.getAudioBookBeingPlayed().getTotalDurationMs(),
+                getTotalDurationMs(),
                 isForward,
                 timerObserver);
         ffRewindController.start();
         analyticsTracker.onFfRewindStarted(isForward);
+    }
+
+    public long getTotalDurationMs() {
+        return playbackService.getAudioBookBeingPlayed().getTotalDurationMs();
     }
 
     public void stopRewind() {
@@ -127,10 +131,18 @@ public class UiControllerPlayback {
     }
 
     private static class FFRewindController implements FFRewindTimer.Observer {
-        private static final int[] SPEED_LEVEL_SPEEDS = { 250, 100, 25  };
-        private static final long[] SPEED_LEVEL_THRESHOLDS = { 15_000, 90_000, Long.MAX_VALUE };
-        private static final PlaybackUi.SpeedLevel[] SPEED_LEVELS =
-                {PlaybackUi.SpeedLevel.REGULAR, PlaybackUi.SpeedLevel.FAST, PlaybackUi.SpeedLevel.FASTEST };
+        private static final int[] SPEED_LEVEL_SPEEDS = { 250, 100, 25, 10, 5, 2 };
+        private static final long t1 = 4 * 4 * 1_000;
+        private static final long t2 = t1 + 8 * 10 * 1_000;
+        private static final long t3 = t2 + 16 * 40 * 1_000;
+        private static final long t4 = t3 + 32 * 100 * 1_000;
+        private static final long t5 = t4 + 32 * 200 * 1_000;
+        private static final long t6 = t5 + 32 * 500 * 1_000;
+        private static final long[] SPEED_LEVEL_THRESHOLDS = { t1, t2, t3, t4, t5, t6, Long.MAX_VALUE };
+        private static final PlaybackUi.SpeedLevel[] SPEED_LEVELS = {
+            PlaybackUi.SpeedLevel.REGULAR, PlaybackUi.SpeedLevel.FAST,
+            PlaybackUi.SpeedLevel.FASTEST, PlaybackUi.SpeedLevel.FASTEST,
+            PlaybackUi.SpeedLevel.FASTEST, PlaybackUi.SpeedLevel.FASTEST };
 
         private final @NonNull PlaybackUi ui;
         private final @NonNull FFRewindTimer timer;

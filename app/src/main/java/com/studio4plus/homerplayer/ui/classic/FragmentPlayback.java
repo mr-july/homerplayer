@@ -41,7 +41,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     private ImageButton rewindButton;
     private ImageButton ffButton;
     private TextView elapsedTimeView;
+    private TextView estimatedTimeView;
     private TextView elapsedTimeRewindFFView;
+    private TextView estimatedTimeRewindFFView;
     private RewindFFHandler rewindFFHandler;
     private Animator elapsedTimeRewindFFViewAnimation;
 
@@ -67,7 +69,9 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
         });
 
         elapsedTimeView = (TextView) view.findViewById(R.id.elapsedTime);
+        estimatedTimeView = (TextView) view.findViewById(R.id.estimatedTime);
         elapsedTimeRewindFFView = (TextView) view.findViewById(R.id.elapsedTimeRewindFF);
+        estimatedTimeRewindFFView = (TextView) view.findViewById(R.id.estimatedTimeRewindFF);
 
         elapsedTimeView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -132,6 +136,10 @@ public class FragmentPlayback extends Fragment implements FFRewindTimer.Observer
     }
 
     void onPlaybackProgressed(long playbackPositionMs) {
+        estimatedTimeView.setText(
+                elapsedTime(controller.getTotalDurationMs() - playbackPositionMs));
+        estimatedTimeRewindFFView.setText(
+                elapsedTime(controller.getTotalDurationMs()));
         onTimerUpdated(playbackPositionMs);
         enableUiOnStart();
     }
