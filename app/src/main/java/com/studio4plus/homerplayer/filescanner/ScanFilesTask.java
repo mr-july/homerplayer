@@ -23,7 +23,10 @@ import java.util.concurrent.Callable;
 
 public class ScanFilesTask implements Callable<List<FileSet>> {
 
-    private static final String[] SUPPORTED_SUFFIXES = {".3gp", ".amr", ".mp3", ".m4a", ".m4b", ".ogg", ".opus"};
+    private static final String[] SUPPORTED_SUFFIXES = {
+            ".3gp", ".aac", ".amr", ".asf", ".awb", ".flac",
+            ".mp3", ".m4a", ".m4b", ".mka", ".oga", ".ogg", ".opus", ".wma"
+    };
 
     private final @NonNull Context applicationContext;
     private final @NonNull String audioBooksDirectoryName;
@@ -34,7 +37,7 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
     }
 
     @Override
-    public List<FileSet> call() throws Exception {
+    public List<FileSet> call() {
         return scanAudioBooksDirectories();
     }
 
@@ -111,7 +114,7 @@ public class ScanFilesTask implements Callable<List<FileSet>> {
 
         FileFilter filesAndDirectoriesFilter = new OrFilter(audioFiles, new DirectoryFilter());
         addFilesRecursive(directory, filesAndDirectoriesFilter, files);
-        return files.toArray(new File[files.size()]);
+        return files.toArray(new File[0]);
     }
 
 
