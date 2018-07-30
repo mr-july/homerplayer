@@ -33,7 +33,7 @@ android {
 
     defaultConfig {
         applicationId "com.studio4plus.homerplayer"
-        minSdkVersion 17
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 46
         versionName getVersionName()

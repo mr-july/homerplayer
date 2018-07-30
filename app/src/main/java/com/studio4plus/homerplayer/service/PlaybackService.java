@@ -10,6 +10,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
+import android.view.KeyEvent;
+
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Preconditions;
@@ -43,6 +48,7 @@ public class PlaybackService
         PLAYBACK
     }
 
+    private static final String TAG = "HPS";
     private static final long FADE_OUT_DURATION_MS = TimeUnit.SECONDS.toMillis(10);
 
     private static final int NOTIFICATION_ID = R.string.playback_service_notification;
@@ -59,6 +65,58 @@ public class PlaybackService
     private Handler handler;
     private final SleepFadeOut sleepFadeOut = new SleepFadeOut();
 
+    private MediaSessionCompat mediaSession;
+
+    private final MediaSessionCompat.Callback mMediaSessionCallback
+            = new MediaSessionCompat.Callback() {
+
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            final String intentAction = mediaButtonEvent.getAction();
+            if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
+                final KeyEvent event = mediaButtonEvent.getParcelableExtra(
+                        Intent.EXTRA_KEY_EVENT);
+                if (event == null) {
+                    return super.onMediaButtonEvent(mediaButtonEvent);
+                }
+                final int keycode = event.getKeyCode();
+                final int action = event.getAction();
+                if (event.getRepeatCount() == 0 && action == KeyEvent.ACTION_DOWN) {
+                    switch (keycode) {
+                        // Do what you want in here
+                        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                            Log.d(TAG, "PLAY/PAUSE called");
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                            Log.d(TAG, "PAUSE called");
+                            pauseForRewind();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PLAY:
+                            Log.d(TAG, "PLAY called");
+                            resumeFromRewind();
+                            break;
+                    }
+                    startService(new Intent(getApplicationContext(), PlaybackService.class));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void onPlay () {
+            Log.d(TAG, "PLAY called");
+            resumeFromRewind();
+        }
+
+        @Override
+        public void onPause () {
+            Log.d(TAG, "PAUSE called");
+            pauseForRewind();
+        }
+    };
+
+
     @Override
     public IBinder onBind(Intent intent) {
         return new ServiceBinder();
@@ -67,6 +125,16 @@ public class PlaybackService
     @Override
     public void onCreate() {
         super.onCreate();
+
+        mediaSession = new MediaSessionCompat(this, "HomerPlayerService");
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_PAUSED, 0, 0)
+                .setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE)
+                .build());
+        mediaSession.setCallback(mMediaSessionCallback);
+
         HomerPlayerApplication.getComponent(getApplicationContext()).inject(this);
         // TODO: use Dagger to create DeviceMotionDetector?
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -74,12 +142,29 @@ public class PlaybackService
         if (sensorManager != null && DeviceMotionDetector.hasSensors(sensorManager)) {
             motionDetector = new DeviceMotionDetector(sensorManager, this);
         }
+
+        mediaSession.setActive(true);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+            mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                    .setState(PlaybackStateCompat.STATE_PAUSED, 0, 0.0f)
+                    .setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE).build());
+        } else {
+            mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                    .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f)
+                    .setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE).build());
+        }
+        return START_NOT_STICKY; // super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopPlayback();
+        mediaSession.release();
     }
 
     public void startPlayback(AudioBook book) {
@@ -201,14 +286,14 @@ public class PlaybackService
     private void requestAudioFocus() {
         AudioManager audioManager =
                 (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.requestAudioFocus(
+        Preconditions.checkNotNull(audioManager).requestAudioFocus(
                 this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     private void dropAudioFocus() {
         AudioManager audioManager =
                 (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.abandonAudioFocus(this);
+        Preconditions.checkNotNull(audioManager).abandonAudioFocus(this);
     }
 
     private void resetSleepTimer() {
